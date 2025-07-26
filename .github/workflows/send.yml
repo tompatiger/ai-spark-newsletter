@@ -1,0 +1,29 @@
+name: Send AI Spark Newsletter
+
+on:
+  schedule:
+    - cron: '0 5 * * *'     # kl 07:00 svensk tid
+    - cron: '0 17 * * *'    # kl 19:00 svensk tid
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Send newsletter
+        run: node sendNewsletter.js
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
