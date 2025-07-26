@@ -1,29 +1,39 @@
-name: Send AI Spark Newsletter
+name: 🕒 Send Newsletter Twice Daily
 
 on:
   schedule:
-    - cron: '0 5 * * *'     # kl 07:00 svensk tid
-    - cron: '0 17 * * *'    # kl 19:00 svensk tid
-  workflow_dispatch:
+    - cron: '0 5 * * *'  # 07:00 CET
+    - cron: '0 17 * * *' # 19:00 CET
+  workflow_dispatch:     # Allow manual triggering
 
 jobs:
   send:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: npm install
 
-      - name: Send newsletter
-        run: node sendNewsletter.js
+      - name: 🔐 Inject secrets
         env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          RECIPIENTS: ${{ secrets.RECIPIENTS }}
+        run: |
+          echo "SMTP_HOST=$SMTP_HOST" > .env
+          echo "SMTP_PORT=$SMTP_PORT" >> .env
+          echo "SMTP_USER=$SMTP_USER" >> .env
+          echo "SMTP_PASS=$SMTP_PASS" >> .env
+          echo "RECIPIENTS=$RECIPIENTS" >> .env
+
+      - name: 📤 Send Newsletter
+        run: node sendNewsletter.js
